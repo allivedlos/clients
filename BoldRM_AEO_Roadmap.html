@@ -6,563 +6,1086 @@
 <title>BoldRM — AEO Optimization Roadmap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --gold:       #C9A96E;
-    --gold-light: #E8D5B0;
-    --gold-pale:  #FAF5EB;
-    --dark:       #141210;
-    --mid:        #4A4540;
-    --muted:      #8C867E;
-    --border:     #E8E4DC;
-    --bg:         #FDFCF9;
-    --white:      #FFFFFF;
-    --p1: #E24B4A; --p1-bg: #FEF2F2; --p1-border: #FCCACA;
-    --p2: #D4920A; --p2-bg: #FFFBF0; --p2-border: #F5DFA0;
-    --p3: #1A9068; --p3-bg: #F0FAF5; --p3-border: #A8DFC9;
-    --p4: #6B5FD4; --p4-bg: #F3F2FE; --p4-border: #C5C0F0;
-    --p5: #0E7DB3; --p5-bg: #EFF8FE; --p5-border: #B0DCEF;
-    --serif: 'DM Serif Display', Georgia, serif;
-    --sans:  'DM Sans', system-ui, sans-serif;
-    --mono:  'DM Mono', monospace;
+/* ─── TOKENS ───────────────────────────────────────────── */
+:root {
+  --gold:        #C9A96E;
+  --gold-dim:    #A07E48;
+  --gold-pale:   #F5EDD9;
+  --ink:         #0F0E0C;
+  --ink-80:      #2A2825;
+  --mid:         #4A4540;
+  --muted:       #8C867E;
+  --stone:       #F5F2EC;
+  --cream:       #FDFCF8;
+  --white:       #FFFFFF;
+  --border:      #E5E0D6;
+  --border-dark: #2E2C28;
+
+  --p1:          #D94040;
+  --p1-bg:       #FEF3F3;
+  --p1-border:   #F5C4C4;
+  --p2:          #C47F0A;
+  --p2-bg:       #FFFBF0;
+  --p2-border:   #EDD99A;
+  --p3:          #16856A;
+  --p3-bg:       #EFF9F5;
+  --p3-border:   #9FD9C5;
+  --p4:          #5E52C8;
+  --p4-bg:       #F2F1FD;
+  --p4-border:   #BDB8ED;
+  --p5:          #0A72A8;
+  --p5-bg:       #EDF7FE;
+  --p5-border:   #9FD0EC;
+
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans:  'DM Sans', system-ui, sans-serif;
+  --mono:  'DM Mono', monospace;
+
+  --radius-sm: 4px;
+  --radius:    10px;
+  --radius-lg: 16px;
+}
+
+/* ─── RESET ────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+img { display: block; max-width: 100%; }
+
+/* ─── LAYOUT SHELL ─────────────────────────────────────── */
+.site-wrap {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: auto;
+  min-height: 100vh;
+}
+
+/* ─── SIDE NAV ─────────────────────────────────────────── */
+.side-nav {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  padding: 40px 28px;
+  overflow-y: auto;
+}
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+.nav-logo-sub {
+  font-size: 10px;
+  color: #5A5650;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+.nav-rule {
+  border: none;
+  border-top: 1px solid var(--border-dark);
+  margin-bottom: 32px;
+}
+.nav-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #5A5650;
+  margin-bottom: 16px;
+}
+.nav-items { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.nav-item a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: #8A8480;
+  text-decoration: none;
+  transition: all .18s;
+}
+.nav-item a:hover { background: rgba(255,255,255,.05); color: #C8C4BE; }
+.nav-item a.active { background: rgba(201,169,110,.12); color: var(--gold); }
+.nav-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .5;
+  flex-shrink: 0;
+}
+.nav-item a.active .nav-dot { opacity: 1; }
+.nav-phase-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: #4A4640;
+  margin-left: auto;
+}
+.nav-footer {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-dark);
+  font-size: 10px;
+  color: #4A4640;
+  line-height: 1.6;
+}
+.nav-footer strong { color: #6A6560; display: block; margin-bottom: 4px; }
+
+/* ─── MAIN CONTENT ─────────────────────────────────────── */
+.main { min-width: 0; }
+
+/* ─── HERO ─────────────────────────────────────────────── */
+.hero {
+  background: var(--ink);
+  padding: 72px 64px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(201,169,110,.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--gold-dim);
+}
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(36px, 5vw, 56px);
+  color: var(--white);
+  line-height: 1.08;
+  max-width: 560px;
+  margin-bottom: 20px;
+}
+.hero-title em { color: var(--gold); font-style: italic; }
+.hero-desc {
+  font-size: 15px;
+  color: #8A8480;
+  line-height: 1.7;
+  max-width: 480px;
+  margin-bottom: 14px;
+}
+.hero-meta {
+  font-size: 11px;
+  color: #5A5650;
+  font-family: var(--mono);
+  margin-bottom: 52px;
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--border-dark);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.stat-cell {
+  background: #18171380;
+  backdrop-filter: blur(8px);
+  padding: 22px 16px;
+  text-align: center;
+}
+.stat-val {
+  font-family: var(--serif);
+  font-size: 30px;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.stat-label { font-size: 10px; color: #5A5650; letter-spacing: .04em; }
+
+/* ─── SECTION WRAPPER ──────────────────────────────────── */
+.section {
+  padding: 64px 64px;
+  border-bottom: 1px solid var(--border);
+}
+.section:last-of-type { border-bottom: none; }
+.section--stone { background: var(--stone); }
+.section--white { background: var(--white); }
+.section--dark  { background: var(--ink-80); color: var(--white); }
+
+/* ─── SECTION HEADER ───────────────────────────────────── */
+.section-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  color: var(--ink);
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+.section-title--light { color: var(--white); }
+.section-body {
+  font-size: 14px;
+  color: var(--mid);
+  line-height: 1.8;
+  max-width: 660px;
+  margin-bottom: 0;
+}
+.section-body--light { color: #8A8480; }
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+/* ─── BRAIN TABLE ──────────────────────────────────────── */
+.brain-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-top: 24px;
+}
+.brain-row {
+  background: var(--white);
+  display: grid;
+  grid-template-columns: 48px 180px 1fr;
+  gap: 0;
+  padding: 0;
+  align-items: stretch;
+}
+.brain-letter-cell {
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 26px;
+  color: var(--gold);
+}
+.brain-name-cell {
+  padding: 18px 20px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+}
+.brain-name-cell strong {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.brain-desc-cell {
+  padding: 18px 24px;
+  font-size: 12.5px;
+  color: var(--mid);
+  line-height: 1.65;
+  display: flex;
+  align-items: center;
+}
+
+/* ─── RESEARCH STATS ───────────────────────────────────── */
+.research-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+.research-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  text-align: center;
+}
+.research-val {
+  font-family: var(--serif);
+  font-size: 36px;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.research-label { font-size: 12px; color: var(--mid); line-height: 1.5; }
+
+/* ─── AI ENGINE TABLE ──────────────────────────────────── */
+.engine-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-top: 20px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.engine-table thead tr { background: var(--ink); }
+.engine-table thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #8A8480;
+}
+.engine-table tbody tr { border-bottom: 1px solid var(--border); }
+.engine-table tbody tr:last-child { border-bottom: none; }
+.engine-table tbody tr:nth-child(odd) { background: var(--white); }
+.engine-table tbody tr:nth-child(even) { background: var(--stone); }
+.engine-table td { padding: 14px 16px; color: var(--mid); vertical-align: top; line-height: 1.6; }
+.engine-table td strong { color: var(--ink); }
+.engine-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin-bottom: 4px;
+}
+.badge-perplexity { background: #E8F0FE; color: #1A5AAC; }
+.badge-chatgpt    { background: #E6F9F1; color: #0E7A4A; }
+.badge-aimode     { background: #FEF3E2; color: #B55A00; }
+
+/* ─── PHASE HEADER ─────────────────────────────────────── */
+.phase-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  border-radius: var(--radius);
+  margin-bottom: 28px;
+  border-left: 4px solid transparent;
+}
+.phase-pill {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 5px 13px;
+  border-radius: 20px;
+  color: white;
+  flex-shrink: 0;
+}
+.phase-title-text {
+  font-family: var(--serif);
+  font-size: 19px;
+  color: var(--ink);
+  flex: 1;
+}
+.phase-timeline {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+/* ─── SUB LABELS ───────────────────────────────────────── */
+.sub-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 28px 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sub-label::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--border);
+  margin-top: 1px;
+}
+
+/* ─── TASK CARDS ───────────────────────────────────────── */
+.tasks-list { display: flex; flex-direction: column; gap: 10px; }
+.task-card {
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  border: 1px solid transparent;
+  border-left-width: 3px;
+}
+.task-card:hover { filter: brightness(.98); }
+.task-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.task-desc {
+  font-size: 12.5px;
+  color: var(--mid);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.task-where {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.task-where-icon { color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+.task-cite {
+  font-size: 11px;
+  color: var(--p5);
+  font-style: italic;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(14,125,179,.12);
+}
+.card-p1 { background: var(--p1-bg); border-color: var(--p1-border); border-left-color: var(--p1); }
+.card-p2 { background: var(--p2-bg); border-color: var(--p2-border); border-left-color: var(--p2); }
+.card-p3 { background: var(--p3-bg); border-color: var(--p3-border); border-left-color: var(--p3); }
+.card-p4 { background: var(--p4-bg); border-color: var(--p4-border); border-left-color: var(--p4); }
+.card-p5 { background: var(--p5-bg); border-color: var(--p5-border); border-left-color: var(--p5); }
+
+/* ─── CALLOUT BOXES ────────────────────────────────────── */
+.callout {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 24px 0;
+  font-size: 13px;
+  line-height: 1.7;
+  border-left: 3px solid transparent;
+}
+.callout strong { font-weight: 600; display: block; margin-bottom: 4px; }
+.callout-warn   { background: #FFFBF0; border-left-color: var(--p2); color: var(--mid); }
+.callout-warn strong { color: var(--p2); }
+.callout-info   { background: var(--p5-bg); border-left-color: var(--p5); color: var(--mid); }
+.callout-info strong { color: var(--p5); }
+.callout-green  { background: var(--p3-bg); border-left-color: var(--p3); color: var(--mid); }
+.callout-green strong { color: var(--p3); }
+
+/* ─── CANONICAL NAP ────────────────────────────────────── */
+.canon-box {
+  background: var(--white);
+  border: 1px solid var(--p3-border);
+  border-left: 3px solid var(--p3);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 20px 0 28px;
+}
+.canon-row {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.canon-row:last-child { border-bottom: none; }
+.canon-key { font-weight: 600; color: var(--p3); }
+.canon-val { font-family: var(--mono); color: var(--ink); font-size: 12.5px; }
+
+/* ─── INDEX QUALITY SCORE ──────────────────────────────── */
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+.score-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 18px 16px;
+}
+.score-level { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.score-name  { font-family: var(--serif); font-size: 16px; color: var(--ink); margin-bottom: 8px; }
+.score-items { font-size: 11.5px; color: var(--mid); line-height: 1.65; }
+
+/* ─── SUMMARY TABLE ────────────────────────────────────── */
+.summary-wrap { padding: 64px 64px 80px; background: var(--white); }
+.summary-wrap .section-title { margin-bottom: 24px; }
+.summary-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.summary-tbl thead tr { background: var(--ink); }
+.summary-tbl thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #7A7670;
+}
+.summary-tbl tbody tr { border-bottom: 1px solid var(--border); }
+.summary-tbl tbody tr:nth-child(even) { background: var(--stone); }
+.summary-tbl tbody tr:nth-child(odd)  { background: var(--white); }
+.summary-tbl td { padding: 11px 16px; color: var(--mid); vertical-align: middle; line-height: 1.5; }
+.tbl-num { font-family: var(--serif); font-size: 16px; color: var(--gold); width: 36px; }
+.phase-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.tag-p1 { background: var(--p1-bg); color: var(--p1); }
+.tag-p2 { background: var(--p2-bg); color: var(--p2); }
+.tag-p3 { background: var(--p3-bg); color: var(--p3); }
+.tag-p4 { background: var(--p4-bg); color: var(--p4); }
+.tag-p5 { background: var(--p5-bg); color: var(--p5); }
+
+/* ─── FOOTER ───────────────────────────────────────────── */
+.doc-footer {
+  background: var(--ink);
+  padding: 28px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.footer-logo { font-family: var(--serif); font-size: 16px; color: var(--gold); }
+.footer-meta { font-size: 11px; color: #4A4640; }
+.footer-contact { font-size: 11px; color: #4A4640; text-align: right; font-family: var(--mono); }
+
+/* ─── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .site-wrap { grid-template-columns: 1fr; }
+  .side-nav {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 20px 24px;
+    gap: 12px;
+    align-items: center;
   }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 15px; }
-  body { font-family: var(--sans); background: var(--bg); color: var(--dark); line-height: 1.6; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .page { width: 860px; margin: 0 auto; padding: 0 0 60px; }
-  .top-bar { height: 7px; background: var(--gold); width: 100%; }
-
-  /* COVER */
-  .cover { padding: 56px 64px 52px; }
-  .cover-wordmark { font-family: var(--serif); font-size: 15px; color: var(--gold); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 2px; }
-  .cover-wordmark-sub { font-size: 11px; color: var(--muted); letter-spacing: .06em; margin-bottom: 36px; }
-  .cover-rule { border: none; border-top: 1px solid var(--border); margin-bottom: 36px; }
-  .cover-title { font-family: var(--serif); font-size: 44px; color: var(--dark); line-height: 1.1; margin-bottom: 16px; max-width: 560px; }
-  .cover-title em { color: var(--gold); font-style: italic; }
-  .cover-desc { font-size: 14px; color: var(--mid); line-height: 1.7; max-width: 520px; margin-bottom: 10px; }
-  .cover-meta { font-size: 11px; color: var(--muted); letter-spacing: .06em; margin-bottom: 40px; }
-  .cover-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 48px; }
-  .stat-cell { background: var(--white); padding: 20px 14px; text-align: center; }
-  .stat-val { font-family: var(--serif); font-size: 28px; color: var(--gold); line-height: 1; margin-bottom: 4px; }
-  .stat-label { font-size: 10px; color: var(--muted); letter-spacing: .04em; }
-  .cover-section-title { font-family: var(--serif); font-size: 18px; color: var(--dark); margin-bottom: 10px; }
-  .cover-body { font-size: 13.5px; color: var(--mid); line-height: 1.75; margin-bottom: 10px; }
-  .cover-body strong { color: var(--dark); font-weight: 600; }
-  .cover-body em { color: var(--mid); font-style: italic; }
-
-  /* Source personality table */
-  .source-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 12px; }
-  .source-table th { background: var(--dark); color: white; padding: 8px 12px; text-align: left; font-weight: 600; font-size: 10.5px; letter-spacing: .04em; }
-  .source-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--mid); }
-  .source-table tr:nth-child(even) td { background: #FAF8F4; }
-
-  /* BRAIN table */
-  .brain-table { width: 100%; border-collapse: collapse; margin-top: 14px; }
-  .brain-table tr { border-bottom: 1px solid var(--border); }
-  .brain-table tr:last-child { border-bottom: none; }
-  .brain-table td { padding: 10px 12px 10px 0; vertical-align: top; }
-  .brain-letter { font-family: var(--serif); font-size: 22px; color: var(--gold); width: 28px; padding-right: 10px; line-height: 1.3; }
-  .brain-name { font-size: 12px; font-weight: 600; color: var(--dark); width: 155px; padding-right: 14px; padding-top: 2px; }
-  .brain-desc { font-size: 12px; color: var(--mid); line-height: 1.6; }
-
-  /* Insight/callout boxes */
-  .insight-box { border-radius: 8px; padding: 13px 16px; margin: 14px 0; font-size: 12.5px; color: var(--mid); line-height: 1.7; }
-  .insight-box strong { color: var(--dark); }
-  .insight-warn { background: #FFFBF0; border-left: 3px solid var(--p2); }
-  .insight-info { background: #EFF8FE; border-left: 3px solid var(--p5); }
-  .insight-green { background: var(--p3-bg); border-left: 3px solid var(--p3); }
-
-  /* Research stats row */
-  .research-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
-  .research-cell { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; text-align: center; }
-  .research-val { font-family: var(--serif); font-size: 26px; color: var(--gold); line-height: 1; margin-bottom: 4px; }
-  .research-label { font-size: 11px; color: var(--muted); }
-
-  /* PAGE BREAK */
-  .page-break { border: none; border-top: 1px solid var(--border); margin: 0 64px; }
-
-  /* PHASE SECTIONS */
-  .phase-section { padding: 44px 64px; }
-  .phase-header { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 10px; margin-bottom: 16px; border-left: 4px solid transparent; }
-  .phase-pill { font-size: 10px; font-weight: 600; letter-spacing: .08em; padding: 4px 12px; border-radius: 20px; color: white; white-space: nowrap; flex-shrink: 0; }
-  .phase-title-text { font-family: var(--serif); font-size: 17px; color: var(--dark); flex: 1; }
-  .phase-timeline { font-size: 11px; color: var(--muted); white-space: nowrap; font-family: var(--mono); }
-  .phase-intro { font-size: 13px; color: var(--mid); line-height: 1.75; margin-bottom: 20px; max-width: 680px; }
-  .sub-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; margin-top: 18px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-
-  /* Task cards */
-  .task-card { border-radius: 8px; padding: 14px 16px; margin-bottom: 8px; border: 1px solid transparent; }
-  .task-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 5px; }
-  .task-title { font-size: 13px; font-weight: 600; color: var(--dark); line-height: 1.4; flex: 1; }
-  .effort-pill { display: none; }
-  .effort-quick, .effort-half, .effort-full, .effort-ongoing { display: none; }
-  .task-desc { font-size: 12px; color: var(--mid); line-height: 1.65; margin-bottom: 6px; }
-  .task-where { font-size: 11px; color: var(--muted); font-family: var(--mono); display: flex; align-items: center; gap: 5px; }
-  .task-where::before { content: "→"; color: var(--gold); font-family: var(--sans); }
-  .task-book-cite { font-size: 10.5px; color: var(--p5); font-style: italic; margin-top: 4px; }
-  .card-p1 { background: var(--p1-bg); border-color: var(--p1-border); }
-  .card-p2 { background: var(--p2-bg); border-color: var(--p2-border); }
-  .card-p3 { background: var(--p3-bg); border-color: var(--p3-border); }
-  .card-p4 { background: var(--p4-bg); border-color: var(--p4-border); }
-  .card-p5 { background: var(--p5-bg); border-color: var(--p5-border); }
-
-  /* Canonical NAP */
-  .canon-box { background: var(--p3-bg); border: 1px solid var(--p3-border); border-radius: 8px; padding: 14px 18px; margin: 14px 0 20px; }
-  .canon-row { display: grid; grid-template-columns: 72px 1fr; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--p3-border); font-size: 12.5px; }
-  .canon-row:last-child { border-bottom: none; }
-  .canon-key { font-weight: 600; color: var(--p3); }
-  .canon-val { font-family: var(--mono); color: var(--dark); font-size: 12px; }
-
-  /* Index quality scorer */
-  .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
-  .score-cell { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
-  .score-level { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-  .score-name { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 6px; }
-  .score-items { font-size: 11px; color: var(--mid); line-height: 1.6; }
-
-  /* Summary table */
-  .summary-section { padding: 0 64px 60px; }
-  .summary-title { font-family: var(--serif); font-size: 20px; color: var(--dark); margin-bottom: 14px; padding-top: 36px; border-top: 1px solid var(--border); }
-  .summary-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .summary-table thead tr { background: var(--dark); color: white; }
-  .summary-table thead th { padding: 9px 12px; text-align: left; font-weight: 600; font-size: 10.5px; letter-spacing: .04em; }
-  .summary-table tbody tr { border-bottom: 1px solid var(--border); }
-  .summary-table tbody tr:nth-child(even) { background: var(--white); }
-  .summary-table tbody tr:nth-child(odd) { background: #FAF8F4; }
-  .summary-table td { padding: 8px 12px; color: var(--mid); vertical-align: top; line-height: 1.5; }
-  .summary-table td:first-child { font-family: var(--serif); font-size: 14px; color: var(--gold); font-weight: 700; width: 28px; }
-  .phase-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
-  .tag-p1 { background: var(--p1-bg); color: var(--p1); }
-  .tag-p2 { background: var(--p2-bg); color: var(--p2); }
-  .tag-p3 { background: var(--p3-bg); color: var(--p3); }
-  .tag-p4 { background: var(--p4-bg); color: var(--p4); }
-  .tag-p5 { background: var(--p5-bg); color: var(--p5); }
-
-  /* Footer */
-  .doc-footer { background: var(--dark); padding: 20px 64px; display: flex; align-items: center; justify-content: space-between; }
-  .footer-brand { font-family: var(--serif); font-size: 14px; color: var(--gold); }
-  .footer-meta { font-size: 11px; color: #6A6560; }
-  .footer-contact { font-size: 11px; color: #6A6560; text-align: right; font-family: var(--mono); }
-
-  @media print {
-    body { background: white; }
-    .page { width: 100%; }
-    .task-card { break-inside: avoid; }
-  }
-  @media screen and (max-width: 900px) {
-    .page { width: 100%; }
-    .cover, .phase-section, .summary-section { padding-left: 28px; padding-right: 28px; }
-    .page-break { margin: 0 28px; }
-    .cover-stats { grid-template-columns: repeat(3, 1fr); }
-    .cover-title { font-size: 32px; }
-    .research-row, .score-grid { grid-template-columns: 1fr; }
-    .doc-footer { padding: 20px 28px; flex-direction: column; gap: 8px; text-align: center; }
-    .footer-contact { text-align: center; }
-  }
+  .nav-logo { font-size: 18px; margin-bottom: 0; }
+  .nav-logo-sub { display: none; }
+  .nav-rule { display: none; }
+  .nav-label { display: none; }
+  .nav-items { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .nav-footer { display: none; }
+  .hero { padding: 48px 28px 56px; }
+  .hero-stats { grid-template-columns: repeat(3, 1fr); }
+  .section { padding: 48px 28px; }
+  .brain-row { grid-template-columns: 40px 1fr; }
+  .brain-name-cell { display: none; }
+  .brain-desc-cell { padding: 14px 16px; }
+  .research-grid { grid-template-columns: 1fr 1fr; }
+  .score-grid { grid-template-columns: 1fr; }
+  .summary-wrap { padding: 48px 28px 64px; }
+  .doc-footer { flex-direction: column; gap: 8px; text-align: center; padding: 24px 28px; }
+  .footer-contact { text-align: center; }
+}
+@media (max-width: 600px) {
+  .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  .research-grid { grid-template-columns: 1fr; }
+  .engine-table { font-size: 11.5px; }
+  .phase-header-bar { flex-wrap: wrap; gap: 8px; }
+  .phase-timeline { width: 100%; }
+  .canon-row { grid-template-columns: 72px 1fr; font-size: 12px; }
+  .summary-tbl { font-size: 12px; }
+  .summary-tbl td { padding: 9px 10px; }
+}
+@media print {
+  .side-nav { display: none; }
+  .site-wrap { display: block; }
+  .section { break-inside: avoid; }
+  .task-card { break-inside: avoid; }
+}
 </style>
 </head>
 <body>
-<div class="page">
+<div class="site-wrap">
 
-  <div class="top-bar"></div>
-
-  <!-- ══ COVER ══ -->
-  <div class="cover">
-    <div class="cover-wordmark">boldRM</div>
-    <div class="cover-wordmark-sub">by Bold Interior Group</div>
-    <hr class="cover-rule">
-
-    <h1 class="cover-title">AEO Optimization<br><em>Roadmap</em></h1>
-    <p class="cover-desc">Answer Engine Optimization strategy — built on the BRAIN Framework from <em>The AEO Blueprint</em> — to get boldRM cited by ChatGPT, Perplexity, Google AI Mode, and Gemini for home staging queries across the San Francisco Bay Area.</p>
-    <p class="cover-meta">Prepared June 2025 &nbsp;·&nbsp; 5 Phases &nbsp;·&nbsp; 90-Day Plan &nbsp;·&nbsp; 24 Action Items &nbsp;·&nbsp; Reference: The AEO Blueprint (Aslam, Belcher & Lopez, 2025)</p>
-
-    <div class="cover-stats">
-      <div class="stat-cell"><div class="stat-val">5</div><div class="stat-label">Phases</div></div>
-      <div class="stat-cell"><div class="stat-val">~90</div><div class="stat-label">Days</div></div>
-      <div class="stat-cell"><div class="stat-val">24</div><div class="stat-label">Action items</div></div>
-      <div class="stat-cell"><div class="stat-val">3</div><div class="stat-label">AI engines targeted</div></div>
-      <div class="stat-cell"><div class="stat-val">$0</div><div class="stat-label">Ad spend</div></div>
+  <!-- ══ SIDE NAV ══════════════════════════════════════════ -->
+  <nav class="side-nav" aria-label="Roadmap navigation">
+    <div class="nav-logo">boldRM</div>
+    <div class="nav-logo-sub">AEO Roadmap · 2025</div>
+    <hr class="nav-rule">
+    <div class="nav-label">Sections</div>
+    <ul class="nav-items">
+      <li class="nav-item"><a href="#overview" class="active"><span class="nav-dot"></span>Overview</a></li>
+      <li class="nav-item"><a href="#phase1"><span class="nav-dot"></span>Fix &amp; Index<span class="nav-phase-num">01</span></a></li>
+      <li class="nav-item"><a href="#phase2"><span class="nav-dot"></span>Brand Rep<span class="nav-phase-num">02</span></a></li>
+      <li class="nav-item"><a href="#phase3"><span class="nav-dot"></span>Authority<span class="nav-phase-num">03</span></a></li>
+      <li class="nav-item"><a href="#phase4"><span class="nav-dot"></span>Entity &amp; Semantic<span class="nav-phase-num">04</span></a></li>
+      <li class="nav-item"><a href="#phase5"><span class="nav-dot"></span>Automate<span class="nav-phase-num">05</span></a></li>
+      <li class="nav-item"><a href="#summary"><span class="nav-dot"></span>All Tasks</a></li>
+    </ul>
+    <div class="nav-footer">
+      <strong>Reference</strong>
+      The AEO Blueprint<br>Aslam, Belcher &amp; Lopez<br>2025
     </div>
+  </nav>
 
-    <h2 class="cover-section-title">What is AEO?</h2>
-    <p class="cover-body">Answer Engine Optimization (AEO) is the intentional practice of making your business the answer that AI-powered tools — ChatGPT, Perplexity, Google AI Mode — deliver when users ask relevant questions. Unlike SEO (ranking on page 1), AEO is about being <strong>the answer itself</strong>, not just a result to click.</p>
-    <p class="cover-body">The book distinguishes two types of AI engines: <strong>Pre-trained engines</strong> (Claude, Llama — work from frozen knowledge) and <strong>real-time engines</strong> (Perplexity, ChatGPT with browsing, Google AI Mode — actively crawl the web). boldRM needs to be optimized for both, but real-time engines are the primary opportunity.</p>
+  <!-- ══ MAIN ══════════════════════════════════════════════ -->
+  <main class="main">
 
-    <div class="insight-info" style="margin: 16px 0;">
-      <p><strong>Research finding from The AEO Blueprint:</strong> Of 7,923 URLs analyzed across ChatGPT, Perplexity, and Google AI Mode — 57.8% came from URLs ranking on Google/Bing, but 42.2% came from sources <em>not</em> ranking on traditional search at all. AI doesn't just scrape the top 3 results. Brand websites and blogs are the #1 and #2 most-cited source types across all three engines.</p>
-    </div>
-
-    <h2 class="cover-section-title" style="margin-top:28px;">The BRAIN Framework</h2>
-    <p class="cover-body" style="margin-bottom:10px;">The strategy that drives every phase of this roadmap, as defined in <em>The AEO Blueprint</em>:</p>
-    <table class="brain-table">
-      <tr>
-        <td class="brain-letter">B</td>
-        <td class="brain-name">Brand Representation</td>
-        <td class="brain-desc">Consistent NAP + brand presence across all platforms AI trusts (directories, communities, media). Inconsistency = AI won't cite you.</td>
-      </tr>
-      <tr>
-        <td class="brain-letter">R</td>
-        <td class="brain-name">Recognition / Authority</td>
-        <td class="brain-desc">Deep, original, experience-based content that only boldRM could produce. No AI-recycled articles — that's the "death spiral." Unlinked brand mentions now count as authority signals.</td>
-      </tr>
-      <tr>
-        <td class="brain-letter">A</td>
-        <td class="brain-name">Authority & Citations</td>
-        <td class="brain-desc">Be cited on external platforms — agent blogs, Inman, RESA, Houzz, Reddit. AI triangulates trust from Social Proof + Structured Fact + First-Party Truth (your site).</td>
-      </tr>
-      <tr>
-        <td class="brain-letter">I</td>
-        <td class="brain-name">Indexability</td>
-        <td class="brain-desc">JSON-LD schema (served server-side, never via JavaScript), llms.txt, clean URLs, sitemap, entity linking. AI bots can't execute JS — schema injected via GTM is invisible to them.</td>
-      </tr>
-      <tr>
-        <td class="brain-letter">N</td>
-        <td class="brain-name">Net New Content</td>
-        <td class="brain-desc">Every piece of content must add genuinely new information. The "death spiral": AI writes articles → AI cites those → content gene pool shrinks → LLMs stop treating it as authoritative.</td>
-      </tr>
-    </table>
-
-    <h2 class="cover-section-title" style="margin-top:28px;">Key Research Findings (The AEO Blueprint)</h2>
-    <div class="research-row">
-      <div class="research-cell"><div class="research-val">57.8%</div><div class="research-label">of AI-cited URLs also rank on Google/Bing — traditional SEO still matters as a baseline</div></div>
-      <div class="research-cell"><div class="research-val">42.2%</div><div class="research-label">of AI-cited URLs do NOT rank on traditional search — AI pulls from a much broader pool</div></div>
-      <div class="research-cell"><div class="research-val">~3,000</div><div class="research-label">average words on pages cited by AI — depth and completeness win over thin content</div></div>
-    </div>
-
-    <h2 class="cover-section-title" style="margin-top:20px;">AI Engine "Personalities" — What Each One Wants</h2>
-    <table class="source-table">
-      <thead><tr><th>Engine</th><th>Citation Strategy</th><th>What This Means for boldRM</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Perplexity</strong></td><td>Strongly prefers page-level authority; 79% of citations rank on Google/Bing. Favors official brand websites above all.</td><td>City pages + LocalBusiness schema must be strong. Perplexity goes straight to your site first.</td></tr>
-        <tr><td><strong>ChatGPT</strong></td><td>Balanced approach: high-traffic domains (avg 9.9M) + page relevance. 56% of citations rank on traditional search.</td><td>Domain authority + specific FAQ pages matter equally. Build both.</td></tr>
-        <tr><td><strong>Google AI Mode</strong></td><td>Paradoxically ignores its own search rankings — 63% of citations come from pages NOT ranking on Google/Bing. Favors blog/expert commentary.</td><td>Third-party blog posts about boldRM, Inman mentions, and agent blogs citing you are critical for Google AI Mode specifically.</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- ══ PHASE 1 ══ -->
-  <hr class="page-break">
-  <div class="phase-section">
-    <div class="phase-header" style="background:var(--p1-bg); border-left-color:var(--p1);">
-      <span class="phase-pill" style="background:var(--p1);">PHASE 1</span>
-      <span class="phase-title-text">Fix & Index — Critical Technical Foundation</span>
-      <span class="phase-timeline">Week 1–2 · Do these first</span>
-    </div>
-    <p class="phase-intro">The book is clear: schema markup is "the single most important and unambiguous factor" for AI visibility. But there's a critical technical trap — AI bots (GPTBot, ClaudeBot, PerplexityBot) <strong>cannot execute JavaScript</strong>. If your schema is injected via GTM or client-side JS, AI crawlers are blind to it. All schema must be in the raw HTML served from the server. Fix these issues before anything else.</p>
-
-    <div class="insight-box insight-warn">
-      <strong>Critical finding from The AEO Blueprint:</strong> "Platforms like GPTBot, ClaudeBot, and PerplexityBot do not execute JavaScript. That means any JSON-LD added after the page loads via GTM is invisible to AI crawlers." Webflow renders server-side by default — this is an advantage. Do NOT add schema via Google Tag Manager. Add it directly in Webflow's Page Settings → Custom Code.
-    </div>
-
-    <div class="sub-label">Quick wins — under 30 minutes each</div>
-
-    <div class="task-card card-p1">
-      <div class="task-top"><div class="task-title">Fix NAP inconsistency on the site</div><span class="effort-pill effort-quick">~15 min</span></div>
-      <p class="task-desc">Homepage and contact page show two different phone numbers (650.245.0345 vs 650.988.5840) and emails (andrew@boldinteriorgroup.com vs info@boldrm.com). The book states: "Inconsistency of signals — LLMs won't quote you because they see the inconsistency." Canonical NAP: <strong>650.988.5840 / info@boldrm.com / https://www.boldrm.com</strong>. Also fix the tel: href which still dials the wrong number.</p>
-      <div class="task-where">Webflow Designer → Contact page top section + Homepage hero widget</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.9 — Brand Representation: "Even punctuation matters to LLMs. '650-988-5840' and '650.988.5840' are technically different strings."</div>
-    </div>
-
-    <div class="task-card card-p1">
-      <div class="task-top"><div class="task-title">Fix "City Name" placeholder on homepage</div><span class="effort-pill effort-quick">~10 min</span></div>
-      <p class="task-desc">The homepage has an unfilled CMS variable "# City Name." AI crawlers index this and it signals an incomplete, untrustworthy site. Hardcode to "San Francisco Bay Area" or bind it correctly to the CMS field.</p>
-      <div class="task-where">Webflow Designer → Homepage → CTA section heading</div>
-    </div>
-
-    <div class="task-card card-p1">
-      <div class="task-top"><div class="task-title">Update robots.txt to allow AI bots explicitly</div><span class="effort-pill effort-quick">~20 min</span></div>
-      <p class="task-desc">Allow GPTBot, PerplexityBot, ClaudeBot, OAI-SearchBot, and Googlebot explicitly. Add a pointer to your sitemap. The book recommends ensuring AI crawlers have unblocked access as a foundational indexability step.</p>
-      <div class="task-where">Webflow Site Settings → SEO → Custom robots.txt</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.10 — Index Quality Level 1: "Robots.txt: Are you blocking non-relevant pages and letting crawlers do their job?"</div>
-    </div>
-
-    <div class="sub-label">Core technical — 1–2 hrs total</div>
-
-    <div class="task-card card-p1">
-      <div class="task-top"><div class="task-title">Add FAQPage JSON-LD schema to all city pages (server-side)</div><span class="effort-pill effort-half">~1 hr</span></div>
-      <p class="task-desc">The book's #1 technical mandate. FAQPage schema lets AI engines extract Q&A pairs as structured data. Without it, LLMs can't reliably cite your FAQ answers. Must be embedded directly in the raw HTML — not injected via GTM. Each city page has 20+ Q&As; these need to be encoded in JSON-LD and added via Webflow's Page Settings → Custom Code → Before &lt;/body&gt;.</p>
-      <div class="task-where">Webflow → Each city page → Page Settings → Custom Code (NOT via GTM)</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.10: "Schema as the Target: AI crawlers specifically seek valid and comprehensive Schema Markup (FAQPage, Product, Review, etc.)."</div>
-    </div>
-
-    <div class="task-card card-p1">
-      <div class="task-top"><div class="task-title">Add LocalBusiness + sameAs schema to homepage</div><span class="effort-pill effort-half">~30 min</span></div>
-      <p class="task-desc">The book specifically calls out sameAs schema as a way to "link your brand to the web's most authoritative sources — Wikidata, Crunchbase — that AI relies on to build its semantic relationships." Include: business name, address, phone, URL, service area, aggregate rating, and sameAs links to Yelp, Google Business, LinkedIn, Facebook, and Wikidata if applicable.</p>
-      <div class="task-where">Webflow → Homepage → Page Settings → Custom Code</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.10: "sameAs helps search engines connect the dots about your brand... it boosts your brand's recognition and lights up your visibility in AI-powered search results."</div>
-    </div>
-
-    <div class="task-card card-p1">
-      <div class="task-top"><div class="task-title">Create llms.txt file at root domain</div><span class="effort-pill effort-half">~30 min</span></div>
-      <p class="task-desc">The book dedicates an entire section to this. llms.txt is a Markdown-formatted file at boldrm.com/llms.txt that gives AI crawlers a structured map of your site — what it is, key pages, and their purpose. Reduces the token cost for crawlers to parse your site. Include: H1 site name, summary block, links to key pages (city pages, services, blog), contact info. Also create an llms-full.txt bundling all documentation.</p>
-      <div class="task-where">Webflow Hosting → Custom file upload or redirect to a hosted Markdown file</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.9: "llms.txt is like a backstage pass for AI bots — giving them all the metadata and context they need to truly comprehend what your site is all about."</div>
-    </div>
-
-    <div class="task-card card-p1">
-      <div class="task-top"><div class="task-title">Verify all city pages indexed in Google Search Console</div><span class="effort-pill effort-quick">~20 min</span></div>
-      <p class="task-desc">Confirm every /cities/ page appears in GSC and request indexing for any that aren't. The book notes that 57.8% of AI-cited URLs rank on traditional search — your city pages must be indexed to be in consideration for Perplexity and ChatGPT citations.</p>
-      <div class="task-where">Google Search Console → URL Inspection → Request Indexing</div>
-    </div>
-  </div>
-
-  <!-- ══ PHASE 2 ══ -->
-  <hr class="page-break">
-  <div class="phase-section">
-    <div class="phase-header" style="background:var(--p2-bg); border-left-color:var(--p2);">
-      <span class="phase-pill" style="background:var(--p2);">PHASE 2</span>
-      <span class="phase-title-text">Brand Representation — NAP + Entity Consistency Everywhere</span>
-      <span class="phase-timeline">Week 2–4 · The BRAIN "B" layer</span>
-    </div>
-    <p class="phase-intro">The book introduces the concept of <strong>"Brand Density"</strong> — how present, visible, and influential your brand is across the digital landscape. It's not about showing up anywhere; it's about showing up in the specific places AI engines crawl when building consensus. The book identifies three pillars: Reach (are you there?), Recognition (are you contributing?), and Reputation (reviews and citations).</p>
-
-    <div class="insight-box insight-info">
-      <strong>The "Answer Budget" Framework (from the book's research):</strong> AI builds answers in two stages. Stage 1: It scans Reddit, directories, and community platforms to build a "consideration set" — a list of trusted brands. Stage 2: It then visits those brands' websites directly for specific facts. boldRM must appear in Stage 1 sources (Yelp, Houzz, agent forums) AND have clean schema on the site for Stage 2.
-    </div>
-
-    <div class="sub-label">Canonical NAP — use this everywhere, exactly as written</div>
-    <div class="canon-box">
-      <div class="canon-row"><span class="canon-key">Business</span><span class="canon-val">Bold Interior Group (branded as boldRM)</span></div>
-      <div class="canon-row"><span class="canon-key">Phone</span><span class="canon-val">650.988.5840</span></div>
-      <div class="canon-row"><span class="canon-key">Email</span><span class="canon-val">info@boldrm.com</span></div>
-      <div class="canon-row"><span class="canon-key">Website</span><span class="canon-val">https://www.boldrm.com</span></div>
-    </div>
-
-    <div class="task-card card-p2">
-      <div class="task-top"><div class="task-title">Audit every directory listing for NAP inconsistency</div><span class="effort-pill effort-half">~2 hrs</span></div>
-      <p class="task-desc">Check: Google Business, Yelp, LinkedIn, Facebook, Houzz, HomeAdvisor, Bark, Alignable, Nextdoor Business. Document every inconsistency in name, phone, address, or URL. The book notes that Reddit and LinkedIn Pulse are among the top cross-platform cited domains — ensuring boldRM appears consistently on these is especially important.</p>
-      <div class="task-where">All external platforms — log inconsistencies in Airtable</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.9: "Brand Reach: The more places your brand shows up — whether it's news outlets, industry sites, or trusted directories — the more AI will see your business as a trusted source."</div>
-    </div>
-
-    <div class="task-card card-p2">
-      <div class="task-top"><div class="task-title">Standardize canonical NAP and fix all inconsistencies</div><span class="effort-pill effort-half">~1 hr</span></div>
-      <p class="task-desc">Update every listing to match the canonical NAP exactly. Update: phone number, email, website URL, and business name format. Pay attention to punctuation — "650-988-5840" and "650.988.5840" are treated as different strings by LLMs.</p>
-      <div class="task-where">All directory platforms found in audit</div>
-    </div>
-
-    <div class="task-card card-p2">
-      <div class="task-top"><div class="task-title">Create missing platform profiles — with focus on AI-cited sources</div><span class="effort-pill effort-half">~2 hrs</span></div>
-      <p class="task-desc">Platforms the book identifies as frequently cited by AI engines: LinkedIn (Pulse especially), Reddit (relevant real estate subreddits), Yelp (already present — ensure optimized), Houzz, RESA (Real Estate Staging Association), HomeAdvisor, Alignable, Nextdoor Business. The book found LinkedIn Pulse to be "a sleeper goldmine" — publish staging insights there.</p>
-      <div class="task-where">New platform signups — use canonical NAP on every profile from day one</div>
-      <div class="task-book-cite">📖 AEO Blueprint Research: "Reddit and LinkedIn Pulse are at the top of the cross-platform cited URL list. Publishing on LinkedIn Pulse builds a library of content that AI can cite."</div>
-    </div>
-
-    <div class="task-card card-p2">
-      <div class="task-top"><div class="task-title">Rewrite meta descriptions for all city pages</div><span class="effort-pill effort-quick">~30 min</span></div>
-      <p class="task-desc">Current meta descriptions are generic. The book emphasizes search intent matching — meta descriptions should front-load the answer to the most likely query. Example for SF: "boldRM home staging in San Francisco costs $3,000–$7,000. Includes complimentary photos, installs in one day. Staged homes sell 5–10% higher. Get an instant estimate."</p>
-      <div class="task-where">Webflow → Each city page → Page Settings → SEO</div>
-    </div>
-
-    <div class="task-card card-p2">
-      <div class="task-top"><div class="task-title">Add "Cities we serve" hub on homepage with internal links</div><span class="effort-pill effort-quick">~30 min</span></div>
-      <p class="task-desc">The book stresses internal linking as essential for building a "Content Knowledge Graph" — helping AI understand relationships between pages. AI crawlers discover /cities/ pages through internal links. Add a grid section on the homepage linking to every city page. This signals topical depth across the Bay Area.</p>
-      <div class="task-where">Webflow Designer → Homepage → new Cities hub section</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.10: "Internal Linking: Create a Content Knowledge Graph — a network of interlinked content on your site that demonstrates topic relevance and relationships."</div>
-    </div>
-  </div>
-
-  <!-- ══ PHASE 3 ══ -->
-  <hr class="page-break">
-  <div class="phase-section">
-    <div class="phase-header" style="background:var(--p3-bg); border-left-color:var(--p3);">
-      <span class="phase-pill" style="background:var(--p3);">PHASE 3</span>
-      <span class="phase-title-text">Deep Authority — Original Content + Topical Depth</span>
-      <span class="phase-timeline">Week 4–8 · The BRAIN "R" + "A" layer</span>
-    </div>
-    <p class="phase-intro">The book introduces the concept of <strong>Topical Authority</strong> — AI rewards brands that go deep, not wide. Don't try to be a generalist; own the "home staging in the Bay Area" niche completely. The book's research found that pages cited by AI average 2,288–3,400 words depending on the engine — depth matters. But the #1 rule is: every article must be net-new.</p>
-
-    <div class="insight-box insight-warn">
-      <strong>The AI death spiral (The AEO Blueprint, Ch.9):</strong> Using ChatGPT to write staging articles → those get indexed → AI engines cite them when writing new articles → the content gene pool shrinks → LLMs stop treating it as authoritative. The book states: "LLMs just quote themselves and start to recognize the pattern of: 'Well, this is not net new information.'" Every boldRM article must use real data: actual addresses, real sale prices, genuine before/after outcomes.
-    </div>
-
-    <div class="sub-label">Original content — real data only</div>
-
-    <div class="task-card card-p3">
-      <div class="task-top"><div class="task-title">Write 4 deep-insight articles with proprietary data</div><span class="effort-pill effort-full">~4 hrs total</span></div>
-      <p class="task-desc">The book explicitly says: "Back up your content with proprietary research." Topics: (1) What we learned staging 50 SF condos — with real stats; (2) Victorian vs Eichler staging differences; (3) The $X stage that got $Y over asking in [city] — real address, real outcome; (4) ROI of staging by Bay Area city — with actual sale data. Aim for 2,000–3,400 words per article with real numbers only.</p>
-      <div class="task-where">Webflow CMS Blog — publish minimum one per week</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.9 Authority: "Produce original, niche content: The more specific and specialized your content, the more AI will recognize your expertise."</div>
-    </div>
-
-    <div class="task-card card-p3">
-      <div class="task-top"><div class="task-title">Add 8 new FAQs per city page — targeting AI "People Also Ask"</div><span class="effort-pill effort-half">~1 hr</span></div>
-      <p class="task-desc">Add FAQs that currently have no answers on the site: "Is home staging tax deductible in California?", "What is the ROI of staging in San Francisco?", "How does boldRM compare to other SF staging companies?", "What's the difference between virtual and real staging?", "Do I need to be home during staging?", "How far in advance should I book staging?". Each one targets a real AI query. These must also be added to the FAQPage JSON-LD schema.</p>
-      <div class="task-where">Webflow CMS → City page template → FAQ collection + update JSON-LD schema</div>
-    </div>
-
-    <div class="task-card card-p3">
-      <div class="task-top"><div class="task-title">Add E-E-A-T authority section to city pages</div><span class="effort-pill effort-half">~1 hr</span></div>
-      <p class="task-desc">The book emphasizes "Focus on Credibility" as a core authority signal. Add a "Why trust boldRM" section: years in business, number of homes staged, Bay Area cities covered, RESA membership, real team names with photos. The book states that unlinked brand mentions in authoritative sources count — this section helps establish that credibility on the page itself.</p>
-      <div class="task-where">Webflow Designer → City page template → new authority section</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.10: "Cite reliable and reputable sources. Optimize for the Knowledge Graph — showing up in Google's Knowledge vault signals high entity understanding and credibility."</div>
-    </div>
-
-    <div class="task-card card-p3">
-      <div class="task-top"><div class="task-title">Add Article/BlogPosting schema to all blog posts</div><span class="effort-pill effort-half">~30 min</span></div>
-      <p class="task-desc">The book's research confirms: "Blogs and brand websites are the #1 and #2 most-cited source types across all AI engines." But without Article schema, AI can't reliably identify and cite your blog content. Add ArticleSchema with author, datePublished, dateModified, headline, and image. Also add author Person schema with an @id to establish entity identity.</p>
-      <div class="task-where">Webflow CMS Blog → Blog Post template → Custom Code</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.10: "Article/BlogPosting for blog posts" listed as a key schema type to implement.</div>
-    </div>
-
-    <div class="task-card card-p3">
-      <div class="task-top"><div class="task-title">Guest post outreach — Inman, agent blogs, and RESA</div><span class="effort-pill effort-full">~3 hrs</span></div>
-      <p class="task-desc">The book notes that Google AI Mode specifically favors expert third-party commentary over brand's own content — making this critical for AI Mode visibility. Target: Inman News, RISMedia, ActiveRain, Compass SF blog, individual top-producing Bay Area agent blogs. Pitch angle: staging ROI data with real numbers. One high-authority guest post = a citation signal LLMs treat as strong social proof in Stage 1 of the "Answer Budget."</p>
-      <div class="task-where">Outreach emails + article submissions — include backlink to relevant city page</div>
-      <div class="task-book-cite">📖 AEO Blueprint Research: "Google AI Mode leads in its reliance on blogs... indicating a preference for third-party analysis, reviews, and industry commentary to build its answers."</div>
-    </div>
-
-    <div class="task-card card-p3">
-      <div class="task-top"><div class="task-title">Implement Recency signals — update existing content genuinely</div><span class="effort-pill effort-half">~1 hr</span></div>
-      <p class="task-desc">The book has an entire section on Recency: "AI doesn't rank content as 'fresh' just because the timestamp says so. They look for real updates — new data, revised insights, updated references." For existing city pages and blog posts: update statistics to 2025 figures, add new case studies, update FAQ answers with current pricing. Also update the schema "dateModified" field.</p>
-      <div class="task-where">Webflow CMS → existing city pages and blog posts</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.9: "Updates to structured data — beyond 'datePublished', if your FAQ schema or product schema gets revised, AI can have a better understanding of it."</div>
-    </div>
-  </div>
-
-  <!-- ══ PHASE 4 ══ -->
-  <hr class="page-break">
-  <div class="phase-section">
-    <div class="phase-header" style="background:var(--p4-bg); border-left-color:var(--p4);">
-      <span class="phase-pill" style="background:var(--p4);">PHASE 4</span>
-      <span class="phase-title-text">Advanced Technical — Entity Linking &amp; Semantic Depth</span>
-      <span class="phase-timeline">Week 4–8 · The BRAIN "I" deep layer</span>
-    </div>
-    <p class="phase-intro">The book introduces advanced concepts from Chapter 10: entity linking, sameAs schema, the @id property, and cosine similarity optimization. These are the technical signals that connect boldRM to the broader "Semantic Web" — the interconnected knowledge graph that AI engines use to determine what entities to trust and cite.</p>
-
-    <div class="insight-box insight-green">
-      <strong>Index Quality Score (from The AEO Blueprint):</strong> The book defines a 10-point scoring system: Level 1 (Accessibility to Crawlers, 1–4 pts) + Level 2 (Structured Data, 1–3 pts) + Level 3 (Entity Relationships, 1–3 pts). Currently, boldRM is likely scoring around 3–4/10. These tasks move it toward 8–9/10.
-    </div>
-
-    <div class="score-grid">
-      <div class="score-cell">
-        <div class="score-level">Level 1 · Target: 4/4</div>
-        <div class="score-name">Accessibility</div>
-        <div class="score-items">Crawl errors fixed · Sitemap submitted · robots.txt clean · llms.txt created · Page speed optimized</div>
+    <!-- HERO -->
+    <section class="hero" id="overview">
+      <div class="hero-eyebrow">AEO Optimization Roadmap</div>
+      <h1 class="hero-title">Get boldRM cited by AI.<br><em>Not just ranked.</em></h1>
+      <p class="hero-desc">A 90-day strategy to make boldRM the answer ChatGPT, Perplexity, and Google AI Mode deliver when agents and homeowners ask about home staging in the Bay Area.</p>
+      <p class="hero-meta">5 phases &nbsp;·&nbsp; 24 action items &nbsp;·&nbsp; $0 ad spend &nbsp;·&nbsp; Ref: The AEO Blueprint (2025)</p>
+      <div class="hero-stats">
+        <div class="stat-cell"><div class="stat-val">5</div><div class="stat-label">Phases</div></div>
+        <div class="stat-cell"><div class="stat-val">~90</div><div class="stat-label">Days</div></div>
+        <div class="stat-cell"><div class="stat-val">24</div><div class="stat-label">Action items</div></div>
+        <div class="stat-cell"><div class="stat-val">3</div><div class="stat-label">AI engines</div></div>
+        <div class="stat-cell"><div class="stat-val">$0</div><div class="stat-label">Ad spend</div></div>
       </div>
-      <div class="score-cell">
-        <div class="score-level">Level 2 · Target: 3/3</div>
-        <div class="score-name">Structured Data</div>
-        <div class="score-items">All key pages have schema · FAQPage on city pages · LocalBusiness + sameAs on homepage · Article schema on blog posts</div>
+    </section>
+
+    <!-- WHAT IS AEO -->
+    <section class="section section--white">
+      <div class="section-eyebrow">What is AEO?</div>
+      <h2 class="section-title">Answer Engine Optimization</h2>
+      <p class="section-body">AEO is the practice of making your business the answer that AI-powered tools deliver — not just a result to click. When someone asks <em>"What's the best home staging company in San Francisco?"</em> the goal is for boldRM to be the business ChatGPT and Perplexity name in their response.</p>
+      <p class="section-body" style="margin-top:12px">The book distinguishes two types of AI engines: <strong>Pre-trained</strong> (Claude, Llama — frozen knowledge) and <strong>Real-time</strong> (Perplexity, ChatGPT with browsing, Google AI Mode — actively crawl the web). Real-time engines are the primary opportunity.</p>
+
+      <div class="callout callout-info" style="margin-top:24px">
+        <strong>Key research finding</strong>
+        Of 7,923 URLs analyzed — 57.8% came from URLs ranking on Google/Bing, but 42.2% came from sources not ranking on traditional search at all. AI doesn't just scrape the top 3 results. Brand websites and blogs are the #1 and #2 most-cited source types across all three engines.
       </div>
-      <div class="score-cell">
-        <div class="score-level">Level 3 · Target: 3/3</div>
-        <div class="score-name">Entity Relationships</div>
-        <div class="score-items">Brand entities validated on Wikidata/Crunchbase · @id property linking content · External links to reputable sources</div>
+
+      <div class="research-grid">
+        <div class="research-card"><div class="research-val">57.8%</div><div class="research-label">of AI-cited URLs also rank on Google/Bing — traditional SEO still matters as a baseline</div></div>
+        <div class="research-card"><div class="research-val">42.2%</div><div class="research-label">of AI-cited URLs don't rank on traditional search — AI pulls from a much broader pool</div></div>
+        <div class="research-card"><div class="research-val">~3,000</div><div class="research-label">average words on pages cited by AI — depth and completeness win over thin content</div></div>
       </div>
-    </div>
+    </section>
 
-    <div class="task-card card-p4">
-      <div class="task-top"><div class="task-title">Add @id property and entity linking to schema markup</div><span class="effort-pill effort-half">~1 hr</span></div>
-      <p class="task-desc">The book dedicates a full section to the @id property: "It gives each entity a globally unique identifier — like a fingerprint for your content." Add @id to the Organization schema on the homepage (e.g., "https://www.boldrm.com/#organization") and reference this @id in Article schema author fields. This tells AI that all content links back to one authoritative source entity.</p>
-      <div class="task-where">Webflow → Homepage schema + Blog template schema — update existing JSON-LD</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.10: "The @id property isn't just for internal pages — it's a gateway to the larger web of knowledge, linking content to trusted external sources like Wikidata."</div>
-    </div>
+    <!-- BRAIN FRAMEWORK -->
+    <section class="section section--stone">
+      <div class="section-eyebrow">The Framework</div>
+      <h2 class="section-title">The BRAIN Framework</h2>
+      <p class="section-body">Every phase of this roadmap maps to one of the five BRAIN pillars defined in <em>The AEO Blueprint</em>. Together they form the strategy for becoming the AI-recommended answer in your market.</p>
+      <div class="brain-grid">
+        <div class="brain-row">
+          <div class="brain-letter-cell">B</div>
+          <div class="brain-name-cell"><strong>Brand Representation</strong></div>
+          <div class="brain-desc-cell">Consistent NAP + brand presence across all platforms AI trusts. Inconsistency = AI won't cite you. Even punctuation matters — "650-988-5840" and "650.988.5840" are different strings to an LLM.</div>
+        </div>
+        <div class="brain-row">
+          <div class="brain-letter-cell">R</div>
+          <div class="brain-name-cell"><strong>Recognition / Authority</strong></div>
+          <div class="brain-desc-cell">Deep, original, experience-based content only boldRM could produce. No AI-recycled articles — that's the "death spiral." Unlinked brand mentions now count as authority signals.</div>
+        </div>
+        <div class="brain-row">
+          <div class="brain-letter-cell">A</div>
+          <div class="brain-name-cell"><strong>Authority & Citations</strong></div>
+          <div class="brain-desc-cell">Be cited on external platforms — agent blogs, Inman, RESA, Houzz, Reddit. AI triangulates trust from Social Proof + Structured Fact + First-Party Truth (your site).</div>
+        </div>
+        <div class="brain-row">
+          <div class="brain-letter-cell">I</div>
+          <div class="brain-name-cell"><strong>Indexability</strong></div>
+          <div class="brain-desc-cell">JSON-LD schema (server-side only, never via GTM), llms.txt, clean URLs, sitemap, entity linking. AI bots can't execute JavaScript — schema injected via GTM is completely invisible to them.</div>
+        </div>
+        <div class="brain-row">
+          <div class="brain-letter-cell">N</div>
+          <div class="brain-name-cell"><strong>Net New Content</strong></div>
+          <div class="brain-desc-cell">Every piece must add genuinely new information to the web. AI writes articles → AI cites those → content gene pool shrinks → LLMs stop treating it as authoritative. This is the death spiral.</div>
+        </div>
+      </div>
+    </section>
 
-    <div class="task-card card-p4">
-      <div class="task-top"><div class="task-title">Add Review + AggregateRating schema using existing Yelp reviews</div><span class="effort-pill effort-half">~1 hr</span></div>
-      <p class="task-desc">The homepage already displays 3 Yelp reviews with names, photos, and locations. The book notes that review sites are the #3 most-cited source type across all AI engines, used to layer in "social proof and consumer sentiment." Mark up these reviews with Review schema and an AggregateRating block. This enables star ratings in Google results and makes reviews available as structured data for AI to cite.</p>
-      <div class="task-where">Webflow Homepage → Custom Code → add Review + AggregateRating JSON-LD</div>
-    </div>
+    <!-- AI ENGINE PERSONALITIES -->
+    <section class="section section--white">
+      <div class="section-eyebrow">Platform Strategy</div>
+      <h2 class="section-title">AI Engine "Personalities"</h2>
+      <p class="section-body">Each AI engine has a distinct citation strategy. A one-size-fits-all approach won't maximize visibility. Understanding these differences shapes how we prioritize each phase.</p>
+      <table class="engine-table">
+        <thead><tr><th>Engine</th><th>Citation Strategy</th><th>What This Means for boldRM</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="engine-badge badge-perplexity">Perplexity</span></td>
+            <td>Strongly prefers page-level authority; 79% of citations rank on Google/Bing. Favors official brand websites above all else.</td>
+            <td>City pages + LocalBusiness schema must be strong. Perplexity goes straight to your site first.</td>
+          </tr>
+          <tr>
+            <td><span class="engine-badge badge-chatgpt">ChatGPT</span></td>
+            <td>Balanced approach: high-traffic domains (avg 9.9M) + page relevance. 56% of citations rank on traditional search.</td>
+            <td>Domain authority + specific FAQ pages matter equally. Build both simultaneously.</td>
+          </tr>
+          <tr>
+            <td><span class="engine-badge badge-aimode">Google AI Mode</span></td>
+            <td>Paradoxically ignores its own search rankings — 63% of citations come from pages NOT on Google/Bing. Favors blog/expert commentary.</td>
+            <td>Third-party posts about boldRM, Inman mentions, and agent blogs citing you are critical here specifically.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-    <div class="task-card card-p4">
-      <div class="task-top"><div class="task-title">Build content knowledge graph via internal linking strategy</div><span class="effort-pill effort-half">~1 hr</span></div>
-      <p class="task-desc">The book instructs: "Build your own Content Knowledge Graph — linking your content both internally and externally so AI can understand the relationships between things on your site." Create a linking map: every city page links to related blog posts + the services page + the cost calculator. Every blog post links to relevant city pages. This creates the semantic network AI uses to determine topical authority.</p>
-      <div class="task-where">Webflow CMS → add cross-links between city pages, blog posts, and services</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.9: "Creating a knowledge graph — linking your content both internally and externally — makes your content stand out as reliable and interconnected, improving entity recognition."</div>
-    </div>
+    <!-- ══ PHASE 1 ══ -->
+    <section class="section section--stone" id="phase1">
+      <div class="phase-header-bar" style="background:var(--p1-bg); border-left-color:var(--p1);">
+        <span class="phase-pill" style="background:var(--p1);">Phase 1</span>
+        <span class="phase-title-text">Fix &amp; Index — Critical Foundation</span>
+        <span class="phase-timeline">Week 1–2 · Do these first</span>
+      </div>
+      <p class="section-body">The book is clear: schema markup is "the single most important and unambiguous factor" for AI visibility. But there's a critical trap — AI bots cannot execute JavaScript. If schema is injected via GTM or client-side JS, AI crawlers are completely blind to it. Fix these issues before any content or authority work.</p>
 
-    <div class="task-card card-p4">
-      <div class="task-top"><div class="task-title">Publish original content on LinkedIn Pulse</div><span class="effort-pill effort-half">~2 hrs</span></div>
-      <p class="task-desc">The book specifically calls out LinkedIn Pulse as "a sleeper goldmine" — it was one of the top cross-platform cited URLs in their research. Publish 2–3 articles on LinkedIn Pulse that are unique to that platform (not duplicates of the blog): "What Bay Area Agents Need to Know About Staging ROI in 2025" / "5 Mistakes That Cost Sellers $20K at Open House." Each article builds a citation signal on a domain AI trusts.</p>
-      <div class="task-where">LinkedIn → Write Article → publish with link back to relevant city pages</div>
-      <div class="task-book-cite">📖 AEO Blueprint Research: "LinkedIn Pulse is a goldmine for AEO. Every time you share expertise on Pulse, you're building a library of content that AI can cite and recommend."</div>
-    </div>
-  </div>
+      <div class="callout callout-warn">
+        <strong>Critical — JavaScript schema is invisible to AI crawlers</strong>
+        Platforms like GPTBot, ClaudeBot, and PerplexityBot do not execute JavaScript. Any JSON-LD added after the page loads via GTM is invisible. Webflow renders server-side by default — this is an advantage. Add all schema directly in Webflow's Page Settings → Custom Code.
+      </div>
 
-  <!-- ══ PHASE 5 ══ -->
-  <hr class="page-break">
-  <div class="phase-section">
-    <div class="phase-header" style="background:var(--p5-bg); border-left-color:var(--p5);">
-      <span class="phase-pill" style="background:var(--p5);">PHASE 5</span>
-      <span class="phase-title-text">Automate &amp; Monitor — The Compounding System</span>
-      <span class="phase-timeline">Week 8–12 · The system that grows itself</span>
-    </div>
-    <p class="phase-intro">This phase turns AEO from a one-time project into a self-compounding system. Every staging project automatically generates a new, original, indexed case study. The book recommends content repurposing with AI tools and automation as the sustainable way to maintain freshness signals and keep publishing net-new content without burning out.</p>
+      <div class="sub-label">Quick wins</div>
+      <div class="tasks-list">
+        <div class="task-card card-p1">
+          <div class="task-title">Fix NAP inconsistency on the site</div>
+          <p class="task-desc">Homepage and contact page show two different phone numbers (650.245.0345 vs 650.988.5840) and two different emails (andrew@boldinteriorgroup.com vs info@boldrm.com). The book states LLMs see this conflict and won't cite a business with inconsistent signals. Also fix the tel: href which still dials the wrong number even though the display shows the correct one.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow Designer → Contact page top section + Homepage hero widget</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.9: "Even punctuation matters to LLMs. '650-988-5840' and '650.988.5840' are technically different strings."</div>
+        </div>
+        <div class="task-card card-p1">
+          <div class="task-title">Fix "City Name" placeholder on homepage</div>
+          <p class="task-desc">The homepage has an unfilled CMS variable reading "# City Name." AI crawlers index this literally and it signals an incomplete, untrustworthy site. Hardcode to "San Francisco Bay Area" or bind it correctly to the CMS field.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow Designer → Homepage → CTA section heading</div>
+        </div>
+        <div class="task-card card-p1">
+          <div class="task-title">Update robots.txt to explicitly allow AI bots</div>
+          <p class="task-desc">Allow GPTBot, PerplexityBot, ClaudeBot, OAI-SearchBot, and Googlebot explicitly. Add a pointer to the sitemap. The book recommends this as a foundational indexability step — don't accidentally block AI crawlers.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow Site Settings → SEO → Custom robots.txt</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.10 — Index Quality Level 1: "Robots.txt: Are you blocking non-relevant pages and letting crawlers do their job?"</div>
+        </div>
+      </div>
 
-    <div class="insight-box insight-info">
-      <strong>Multimodal content strategy (The AEO Blueprint, Ch.9):</strong> The book stresses showing up in multiple formats — text, video, audio — as "the new frontier." 67% of Gen Z starts searches on Instagram, 64% use TikTok instead of Google. The photo-to-CMS automation below aligns with this: every stage becomes a story published across Webflow blog, LinkedIn Pulse, and social — maximizing citation surface area.
-    </div>
+      <div class="sub-label">Core technical</div>
+      <div class="tasks-list">
+        <div class="task-card card-p1">
+          <div class="task-title">Add FAQPage JSON-LD schema to all city pages</div>
+          <p class="task-desc">The book's #1 technical mandate. FAQPage schema lets AI engines extract Q&A pairs as structured data. Without it, LLMs can't reliably cite your FAQ answers. Must be embedded directly in the raw HTML — not via GTM. Each city page has 20+ Q&As that need to be encoded in JSON-LD and added via Webflow's Page Settings → Custom Code → Before &lt;/body&gt;.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow → Each city page → Page Settings → Custom Code (server-side only)</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.10: "Schema as the Target: AI crawlers specifically seek valid and comprehensive Schema Markup (FAQPage, Product, Review, etc.)."</div>
+        </div>
+        <div class="task-card card-p1">
+          <div class="task-title">Add LocalBusiness + sameAs schema to homepage</div>
+          <p class="task-desc">The book specifically calls out sameAs schema as a way to "link your brand to the web's most authoritative sources — Wikidata, Crunchbase — that AI relies on to build its semantic relationships." Include: business name, address, phone, URL, service area, aggregate rating, and sameAs links to Yelp, Google Business, LinkedIn, Facebook, and Wikidata.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow → Homepage → Page Settings → Custom Code</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.10: "sameAs helps search engines connect the dots about your brand and lights up your visibility in AI-powered search results."</div>
+        </div>
+        <div class="task-card card-p1">
+          <div class="task-title">Create llms.txt file at root domain</div>
+          <p class="task-desc">The book dedicates an entire section to this. llms.txt is a Markdown-formatted file at boldrm.com/llms.txt that gives AI crawlers a structured map of your site. Reduces the token cost for crawlers — LLMs skip sites that are expensive to read. Include: H1 site name, summary block, links to key pages (city pages, services, blog), contact info. Also create llms-full.txt bundling all documentation.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow Hosting → Custom file upload or redirect to a hosted Markdown file</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.9: "llms.txt is like a backstage pass for AI bots — giving them all the metadata and context they need to truly comprehend what your site is all about."</div>
+        </div>
+        <div class="task-card card-p1">
+          <div class="task-title">Verify all city pages are indexed in Google Search Console</div>
+          <p class="task-desc">Confirm every /cities/ page appears in GSC and request indexing for any that aren't. The book notes that 57.8% of AI-cited URLs rank on traditional search — your city pages must be indexed to be in consideration for Perplexity and ChatGPT citations.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Google Search Console → URL Inspection → Request Indexing</div>
+        </div>
+      </div>
+    </section>
 
-    <div class="task-card card-p5">
-      <div class="task-top"><div class="task-title">Build photo → Claude → Webflow CMS automation</div><span class="effort-pill effort-full">~6 hrs</span></div>
-      <p class="task-desc">Full automation: Photographer uploads to Dropbox → Zapier trigger → property details logged in Airtable → Claude API writes unique case study (story + FAQs + social caption + meta description + JSON-LD schema block) → Zapier auto-drafts in Webflow CMS → Admin reviews → 1-click publish → Zapier notifies agent subscriber list via MailerLite. Every stage becomes one new indexed, schema-marked article with net-new proprietary data.</p>
-      <div class="task-where">Zapier + Claude API + Airtable + Webflow CMS + Dropbox + MailerLite</div>
-      <div class="task-book-cite">📖 AEO Blueprint Ch.9: "Repurposing content builds serious authority. You start showing up everywhere, saying the same smart stuff in different ways. That consistency is what gets you recognized by Answer Engines."</div>
-    </div>
+    <!-- ══ PHASE 2 ══ -->
+    <section class="section section--white" id="phase2">
+      <div class="phase-header-bar" style="background:var(--p2-bg); border-left-color:var(--p2);">
+        <span class="phase-pill" style="background:var(--p2);">Phase 2</span>
+        <span class="phase-title-text">Brand Representation — NAP + Entity Consistency</span>
+        <span class="phase-timeline">Week 2–4 · The BRAIN "B" layer</span>
+      </div>
+      <p class="section-body">The book introduces the concept of <strong>Brand Density</strong> — how present, visible, and influential your brand is across the digital landscape. It's not about showing up anywhere; it's about the specific places AI engines crawl when building consensus. Three pillars: Reach, Recognition, and Reputation.</p>
 
-    <div class="task-card card-p5">
-      <div class="task-top"><div class="task-title">Set up weekly AI citation monitoring process</div><span class="effort-pill effort-ongoing">Ongoing</span></div>
-      <p class="task-desc">Every week: query ChatGPT (with browsing), Perplexity, and Google AI Mode with target queries: "best home staging company in San Francisco / Burlingame / Los Altos / Millbrae / Mountain View," "how much does home staging cost in the Bay Area," "who does home staging in [city]." Log results in Airtable. Track citation frequency week over week — this is the primary KPI of the entire program.</p>
-      <div class="task-where">Manual queries (20 min/week) → logged in Airtable citation tracker</div>
-    </div>
+      <div class="callout callout-info">
+        <strong>The "Answer Budget" Framework</strong>
+        AI builds answers in two stages. Stage 1: It scans Reddit, directories, and community platforms to build a "consideration set" of trusted brands. Stage 2: It then visits those brands' websites directly for specific facts. boldRM must appear in both stages.
+      </div>
 
-    <div class="task-card card-p5">
-      <div class="task-top"><div class="task-title">Build AEO monitoring dashboard in Airtable</div><span class="effort-pill effort-full">~4 hrs</span></div>
-      <p class="task-desc">Track weekly: GSC query impressions by city, AI citation check results per engine, new backlinks acquired, city page rankings, blog post indexed status, schema validation status (use Google's Rich Results Test). The book recommends monitoring branded search volume as a key indicator — "if you work on AI visibility, your branded searches will start to rise." Populate via Zapier from GSC exports.</p>
-      <div class="task-where">Airtable dashboard + Zapier automation from Google Search Console</div>
-    </div>
+      <div class="sub-label">Canonical NAP</div>
+      <div class="canon-box">
+        <div class="canon-row"><span class="canon-key">Business</span><span class="canon-val">Bold Interior Group (branded as boldRM)</span></div>
+        <div class="canon-row"><span class="canon-key">Phone</span><span class="canon-val">650.988.5840</span></div>
+        <div class="canon-row"><span class="canon-key">Email</span><span class="canon-val">info@boldrm.com</span></div>
+        <div class="canon-row"><span class="canon-key">Website</span><span class="canon-val">https://www.boldrm.com</span></div>
+      </div>
 
-    <div class="task-card card-p5">
-      <div class="task-top"><div class="task-title">Validate all schema monthly with Google's Rich Results Test</div><span class="effort-pill effort-ongoing">Ongoing</span></div>
-      <p class="task-desc">The book's research found that URLs with valid schema have 65% higher average page traffic than URLs with failed/no schema. Run monthly validation on all city pages, homepage, and recent blog posts. Check Google Search Console for "Structured Data Errors" report. The book warns: "Errors in schema can confuse AI systems — avoid overuse and ensure data matches what's visible to users."</p>
-      <div class="task-where">Google Rich Results Test + Google Search Console → Enhancements tab</div>
-      <div class="task-book-cite">📖 AEO Blueprint Research: "URLs with 'Passed' schema validation have noticeably higher average traffic (~19,000) than URLs with 'Failed/No Schema' (~11,500)."</div>
-    </div>
-  </div>
+      <div class="tasks-list">
+        <div class="task-card card-p2">
+          <div class="task-title">Audit every directory listing for NAP inconsistency</div>
+          <p class="task-desc">Check Google Business, Yelp, LinkedIn, Facebook, Houzz, HomeAdvisor, Bark, Alignable, Nextdoor Business. Document every inconsistency in name, phone, address, or URL. Reddit and LinkedIn Pulse are among the top cross-platform cited domains — consistency on these matters especially.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>All external platforms — log inconsistencies in Airtable</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.9: "Brand Reach: The more places your brand shows up in trusted directories, the more AI will see your business as a trusted source."</div>
+        </div>
+        <div class="task-card card-p2">
+          <div class="task-title">Standardize canonical NAP and fix all inconsistencies</div>
+          <p class="task-desc">Update every listing to match the canonical NAP exactly. Pay attention to punctuation — "650-988-5840" and "650.988.5840" are treated as different strings by LLMs. Even the format of the business name matters.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>All directory platforms found in audit</div>
+        </div>
+        <div class="task-card card-p2">
+          <div class="task-title">Create missing platform profiles — focus on AI-cited sources</div>
+          <p class="task-desc">Platforms the book identifies as frequently cited by AI: LinkedIn Pulse, Reddit (real estate subreddits), Houzz, RESA (Real Estate Staging Association), HomeAdvisor, Alignable, Nextdoor Business. LinkedIn Pulse is called a "sleeper goldmine" — publish staging insights there as original content.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>New platform signups — use canonical NAP on every profile from day one</div>
+          <div class="task-cite">📖 AEO Blueprint Research: "LinkedIn Pulse is a goldmine for AEO. Every time you share expertise on Pulse, you're building a library of content that AI can cite."</div>
+        </div>
+        <div class="task-card card-p2">
+          <div class="task-title">Rewrite meta descriptions for all city pages</div>
+          <p class="task-desc">Current meta descriptions are generic taglines. The book emphasizes search intent matching — meta descriptions should front-load the answer to the most likely query. Example for SF: "boldRM home staging in San Francisco costs $3,000–$7,000. Includes complimentary photos, installs in one day. Staged homes sell 5–10% higher. Get an instant estimate."</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow → Each city page → Page Settings → SEO</div>
+        </div>
+        <div class="task-card card-p2">
+          <div class="task-title">Add "Cities we serve" hub on homepage with internal links</div>
+          <p class="task-desc">Internal linking is essential for building a Content Knowledge Graph — helping AI understand relationships between pages. AI crawlers discover /cities/ pages through internal links. A grid section on the homepage linking to every city page signals topical depth across the Bay Area.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow Designer → Homepage → new Cities hub section</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.10: "Create a Content Knowledge Graph — a network of interlinked content that demonstrates topic relevance and relationships."</div>
+        </div>
+      </div>
+    </section>
 
-  <!-- ══ SUMMARY TABLE ══ -->
-  <div class="summary-section">
-    <h2 class="summary-title">Master Priority Summary — 24 Action Items</h2>
-    <table class="summary-table">
-      <thead><tr><th>#</th><th>Task</th><th>Phase</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td>Fix NAP inconsistency — phone &amp; email on site + tel: href</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
-        <tr><td>2</td><td>Fix "City Name" CMS placeholder on homepage</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
-        <tr><td>3</td><td>Update robots.txt to allow GPTBot, PerplexityBot, ClaudeBot</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
-        <tr><td>4</td><td>Add FAQPage JSON-LD schema to all city pages (server-side, NOT via GTM)</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
-        <tr><td>5</td><td>Add LocalBusiness + sameAs schema to homepage</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
-        <tr><td>6</td><td>Create llms.txt + llms-full.txt at root domain</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
-        <tr><td>7</td><td>Verify all city pages indexed in Google Search Console</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
-        <tr><td>8</td><td>Audit every directory listing for NAP inconsistencies</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
-        <tr><td>9</td><td>Standardize canonical NAP across all platforms</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
-        <tr><td>10</td><td>Create missing profiles — LinkedIn, RESA, Houzz, Alignable, Reddit presence</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
-        <tr><td>11</td><td>Rewrite meta descriptions for all city pages (intent-first)</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
-        <tr><td>12</td><td>Add "Cities we serve" hub on homepage with internal links</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
-        <tr><td>13</td><td>Write 4 original deep-insight articles (proprietary data only)</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
-        <tr><td>14</td><td>Add 8 new FAQs per city page + update FAQPage schema</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
-        <tr><td>15</td><td>Add E-E-A-T authority section to all city pages</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
-        <tr><td>16</td><td>Add Article/BlogPosting schema to all blog posts</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
-        <tr><td>17</td><td>Guest post outreach — Inman, agent blogs, RESA (critical for Google AI Mode)</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
-        <tr><td>18</td><td>Update existing city page content with 2025 data (genuine recency)</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
-        <tr><td>19</td><td>Add @id property + entity linking to all schema markup</td><td><span class="phase-tag tag-p4">Phase 4</span></td></tr>
-        <tr><td>20</td><td>Add Review + AggregateRating schema from existing Yelp reviews</td><td><span class="phase-tag tag-p4">Phase 4</span></td></tr>
-        <tr><td>21</td><td>Build internal content knowledge graph via cross-linking strategy</td><td><span class="phase-tag tag-p4">Phase 4</span></td></tr>
-        <tr><td>22</td><td>Publish 2–3 original articles on LinkedIn Pulse</td><td><span class="phase-tag tag-p4">Phase 4</span></td></tr>
-        <tr><td>23</td><td>Build photo → Claude → Webflow CMS automation (Zapier)</td><td><span class="phase-tag tag-p5">Phase 5</span></td></tr>
-        <tr><td>24</td><td>Build AEO monitoring dashboard + weekly citation checks (ongoing)</td><td><span class="phase-tag tag-p5">Phase 5</span></td></tr>
-      </tbody>
-    </table>
-  </div>
+    <!-- ══ PHASE 3 ══ -->
+    <section class="section section--stone" id="phase3">
+      <div class="phase-header-bar" style="background:var(--p3-bg); border-left-color:var(--p3);">
+        <span class="phase-pill" style="background:var(--p3);">Phase 3</span>
+        <span class="phase-title-text">Deep Authority — Original Content + Topical Depth</span>
+        <span class="phase-timeline">Week 4–8 · The BRAIN "R" + "A" layer</span>
+      </div>
+      <p class="section-body">The book introduces Topical Authority — AI rewards brands that go deep, not wide. Don't try to be a generalist; own the "home staging in the Bay Area" niche completely. Pages cited by AI average 2,288–3,400 words depending on the engine. But the #1 rule: every article must be net-new.</p>
 
-  <!-- FOOTER -->
-  <div class="doc-footer">
-    <div class="footer-brand">boldRM</div>
-    <div class="footer-meta">AEO Roadmap · Reference: The AEO Blueprint (Aslam, Belcher & Lopez, 2025) · June 2025</div>
-    <div class="footer-contact">info@boldrm.com · 650.988.5840 · boldrm.com</div>
-  </div>
+      <div class="callout callout-warn">
+        <strong>The AI death spiral — avoid this</strong>
+        Using ChatGPT to write staging articles → those get indexed → AI engines cite them when writing new articles → content gene pool shrinks → LLMs stop treating it as authoritative. Every boldRM article must use real data: actual addresses, real sale prices, genuine before/after outcomes.
+      </div>
 
+      <div class="sub-label">Original content — real data only</div>
+      <div class="tasks-list">
+        <div class="task-card card-p3">
+          <div class="task-title">Write 4 deep-insight articles with proprietary data</div>
+          <p class="task-desc">The book says: "Back up your content with proprietary research." Topics: (1) What we learned staging 50 SF condos — with real stats; (2) Victorian vs Eichler staging differences; (3) The $X stage that got $Y over asking in [city] — real address, real outcome; (4) ROI of staging by Bay Area city with actual sale data. Aim for 2,000–3,400 words per article. Real numbers only.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow CMS Blog — publish minimum one per week</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.9: "Produce original, niche content: The more specific and specialized your content, the more AI will recognize your expertise."</div>
+        </div>
+        <div class="task-card card-p3">
+          <div class="task-title">Add 8 new FAQs per city page — targeting AI "People Also Ask"</div>
+          <p class="task-desc">Add FAQs that currently have no answers on the site: "Is home staging tax deductible in California?", "What is the ROI of staging in San Francisco?", "How does boldRM compare to other SF staging companies?", "What's the difference between virtual and real staging?", "Do I need to be home during staging?", "How far in advance should I book?" These must also be added to the FAQPage JSON-LD schema.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow CMS → City page template → FAQ collection + update JSON-LD schema</div>
+        </div>
+        <div class="task-card card-p3">
+          <div class="task-title">Add E-E-A-T authority section to city pages</div>
+          <p class="task-desc">The book emphasizes credibility signals as core authority. Add a "Why trust boldRM" section: years in business, number of homes staged, Bay Area cities covered, RESA membership, real team names with photos. Unlinked brand mentions in authoritative sources count — this section establishes that credibility on the page itself.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow Designer → City page template → new authority section</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.10: "Optimize for the Knowledge Graph — showing up in Google's Knowledge vault signals high entity understanding and credibility."</div>
+        </div>
+        <div class="task-card card-p3">
+          <div class="task-title">Add Article/BlogPosting schema to all blog posts</div>
+          <p class="task-desc">Blogs are the #2 most-cited source type across all AI engines. But without Article schema, AI can't reliably identify and cite your blog content. Add ArticleSchema with author, datePublished, dateModified, headline, and image. Also add author Person schema with an @id to establish entity identity.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow CMS Blog → Blog Post template → Custom Code</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.10: "Article/BlogPosting for blog posts" listed as a key schema type to implement.</div>
+        </div>
+        <div class="task-card card-p3">
+          <div class="task-title">Guest post outreach — Inman, agent blogs, and RESA</div>
+          <p class="task-desc">Google AI Mode specifically favors expert third-party commentary over a brand's own content — making this critical for AI Mode visibility. Target: Inman News, RISMedia, ActiveRain, Compass SF blog, top-producing Bay Area agent blogs. Pitch angle: staging ROI data with real numbers. One high-authority guest post = a Stage 1 citation signal LLMs use to build their consideration set.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Outreach emails + article submissions — include backlink to relevant city page</div>
+          <div class="task-cite">📖 AEO Blueprint Research: "Google AI Mode leads in its reliance on blogs, indicating a preference for third-party analysis, reviews, and industry commentary."</div>
+        </div>
+        <div class="task-card card-p3">
+          <div class="task-title">Update existing content with genuine 2025 recency signals</div>
+          <p class="task-desc">The book has an entire section on Recency: "AI doesn't rank content as 'fresh' just because the timestamp says so. They look for real updates." For existing city pages and blog posts: update statistics to 2025 figures, add new case studies, update FAQ answers with current pricing. Also update the schema dateModified field. Don't just change the date — add real new information.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow CMS → existing city pages and blog posts</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.9: "Updates to structured data — if your FAQ schema gets revised, AI can have a better understanding of it."</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PHASE 4 ══ -->
+    <section class="section section--white" id="phase4">
+      <div class="phase-header-bar" style="background:var(--p4-bg); border-left-color:var(--p4);">
+        <span class="phase-pill" style="background:var(--p4);">Phase 4</span>
+        <span class="phase-title-text">Advanced Technical — Entity Linking &amp; Semantic Depth</span>
+        <span class="phase-timeline">Week 4–8 · The BRAIN "I" deep layer</span>
+      </div>
+      <p class="section-body">The book introduces advanced concepts: entity linking, sameAs schema, the @id property, and cosine similarity optimization. These are the technical signals that connect boldRM to the broader Semantic Web — the knowledge graph AI engines use to determine what entities to trust and cite.</p>
+
+      <div class="callout callout-green">
+        <strong>Index Quality Score — from The AEO Blueprint</strong>
+        The book defines a 10-point scoring system. Currently, boldRM is likely scoring around 3–4/10. These four tasks move it toward 8–9/10.
+      </div>
+
+      <div class="score-grid">
+        <div class="score-card">
+          <div class="score-level">Level 1 · Target: 4/4</div>
+          <div class="score-name">Accessibility</div>
+          <div class="score-items">Crawl errors fixed · Sitemap submitted · robots.txt clean · llms.txt created · Page speed optimized</div>
+        </div>
+        <div class="score-card">
+          <div class="score-level">Level 2 · Target: 3/3</div>
+          <div class="score-name">Structured Data</div>
+          <div class="score-items">All key pages have schema · FAQPage on city pages · LocalBusiness + sameAs on homepage · Article schema on blog posts</div>
+        </div>
+        <div class="score-card">
+          <div class="score-level">Level 3 · Target: 3/3</div>
+          <div class="score-name">Entity Relationships</div>
+          <div class="score-items">Brand entities on Wikidata · @id property linking content · External links to reputable sources</div>
+        </div>
+      </div>
+
+      <div class="tasks-list" style="margin-top:8px">
+        <div class="task-card card-p4">
+          <div class="task-title">Add @id property and entity linking to schema markup</div>
+          <p class="task-desc">The book dedicates a full section to the @id property: "It gives each entity a globally unique identifier — like a fingerprint for your content." Add @id to the Organization schema on the homepage (e.g., "https://www.boldrm.com/#organization") and reference this @id in Article schema author fields. This tells AI that all content links back to one authoritative source entity.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow → Homepage schema + Blog template schema — update existing JSON-LD</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.10: "The @id property is a gateway to the larger web of knowledge, linking content to trusted external sources like Wikidata."</div>
+        </div>
+        <div class="task-card card-p4">
+          <div class="task-title">Add Review + AggregateRating schema using existing Yelp reviews</div>
+          <p class="task-desc">The homepage already displays 3 Yelp reviews with names, photos, and locations. Review sites are the #3 most-cited source type across all AI engines — they layer in "social proof and consumer sentiment." Mark up these reviews with Review schema and an AggregateRating block. This enables star ratings in Google results and makes reviews available as structured data for AI to cite.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow Homepage → Custom Code → add Review + AggregateRating JSON-LD</div>
+        </div>
+        <div class="task-card card-p4">
+          <div class="task-title">Build content knowledge graph via internal linking strategy</div>
+          <p class="task-desc">The book instructs: "Build your own Content Knowledge Graph — linking your content both internally and externally so AI can understand the relationships between things on your site." Create a linking map: every city page links to related blog posts + the services page + the cost calculator. Every blog post links to relevant city pages. This creates the semantic network AI uses to determine topical authority.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Webflow CMS → add cross-links between city pages, blog posts, and services</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.9: "Linking your content both internally and externally makes it stand out as reliable and interconnected, improving entity recognition."</div>
+        </div>
+        <div class="task-card card-p4">
+          <div class="task-title">Publish original content on LinkedIn Pulse</div>
+          <p class="task-desc">LinkedIn Pulse is "a sleeper goldmine" — one of the top cross-platform cited URLs in the book's research. Publish 2–3 articles that are unique to the platform (not duplicates of the blog): "What Bay Area Agents Need to Know About Staging ROI in 2025" / "5 Mistakes That Cost Sellers $20K at Open House." Each article builds a citation signal on a domain AI trusts.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>LinkedIn → Write Article → publish with link back to relevant city pages</div>
+          <div class="task-cite">📖 AEO Blueprint Research: "Every time you share expertise on Pulse, you're building a library of content that AI can cite and recommend."</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PHASE 5 ══ -->
+    <section class="section section--stone" id="phase5">
+      <div class="phase-header-bar" style="background:var(--p5-bg); border-left-color:var(--p5);">
+        <span class="phase-pill" style="background:var(--p5);">Phase 5</span>
+        <span class="phase-title-text">Automate &amp; Monitor — The Compounding System</span>
+        <span class="phase-timeline">Week 8–12 · The system that grows itself</span>
+      </div>
+      <p class="section-body">This phase turns AEO from a one-time project into a self-compounding system. Every staging project automatically generates a new, original, indexed case study. The book recommends content repurposing with AI tools and automation as the sustainable way to maintain freshness signals without burning out.</p>
+
+      <div class="callout callout-info">
+        <strong>Multimodal content strategy</strong>
+        The book stresses showing up in multiple formats — text, video, audio. 67% of Gen Z starts searches on Instagram, 64% use TikTok instead of Google. The photo-to-CMS automation below aligns with this: every stage becomes a story published across Webflow blog, LinkedIn Pulse, and social, maximizing citation surface area.
+      </div>
+
+      <div class="tasks-list">
+        <div class="task-card card-p5">
+          <div class="task-title">Build photo → Claude → Webflow CMS automation</div>
+          <p class="task-desc">Full automation flow: Photographer uploads to Dropbox → Zapier trigger → property details logged in Airtable → Claude API writes a unique case study (story + FAQs + social caption + meta description + JSON-LD schema block) → Zapier auto-drafts in Webflow CMS → Admin reviews → 1-click publish → Zapier notifies agent subscriber list via MailerLite. Every stage becomes one new indexed, schema-marked article with net-new proprietary data.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Zapier + Claude API + Airtable + Webflow CMS + Dropbox + MailerLite</div>
+          <div class="task-cite">📖 AEO Blueprint Ch.9: "Repurposing content builds serious authority. You start showing up everywhere, saying the same smart stuff in different ways."</div>
+        </div>
+        <div class="task-card card-p5">
+          <div class="task-title">Set up weekly AI citation monitoring</div>
+          <p class="task-desc">Every week: query ChatGPT (with browsing), Perplexity, and Google AI Mode with target queries: "best home staging company in San Francisco / Burlingame / Los Altos / Millbrae / Mountain View," "how much does home staging cost in the Bay Area," "who does home staging in [city]." Log results in Airtable. Track citation frequency week over week — this is the primary KPI of the entire program.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Manual queries (20 min/week) → logged in Airtable citation tracker</div>
+        </div>
+        <div class="task-card card-p5">
+          <div class="task-title">Build AEO monitoring dashboard in Airtable</div>
+          <p class="task-desc">Track weekly: GSC query impressions by city, AI citation check results per engine, new backlinks acquired, city page rankings, blog post indexed status, schema validation status (Google's Rich Results Test). The book recommends monitoring branded search volume as a key indicator — "if you work on AI visibility, your branded searches will start to rise." Populate via Zapier from GSC exports.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Airtable dashboard + Zapier automation from Google Search Console</div>
+        </div>
+        <div class="task-card card-p5">
+          <div class="task-title">Validate all schema monthly with Google's Rich Results Test</div>
+          <p class="task-desc">The book's research found that URLs with valid schema have 65% higher average page traffic than URLs with failed/no schema (~19,000 vs ~11,500 avg visits). Run monthly validation on all city pages, homepage, and recent blog posts. Check Google Search Console for "Structured Data Errors" report. Errors in schema can confuse AI systems — ensure data matches what's visible to users.</p>
+          <div class="task-where"><span class="task-where-icon">→</span>Google Rich Results Test + Google Search Console → Enhancements tab</div>
+          <div class="task-cite">📖 AEO Blueprint Research: "URLs with 'Passed' schema validation have noticeably higher average traffic (~19,000) than URLs with 'Failed/No Schema' (~11,500)."</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SUMMARY ══ -->
+    <section class="summary-wrap" id="summary">
+      <div class="section-eyebrow">All tasks</div>
+      <h2 class="section-title">Master Priority Summary</h2>
+      <table class="summary-tbl">
+        <thead><tr><th>#</th><th>Task</th><th>Phase</th></tr></thead>
+        <tbody>
+          <tr><td class="tbl-num">1</td><td>Fix NAP inconsistency — phone &amp; email on site + tel: href</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
+          <tr><td class="tbl-num">2</td><td>Fix "City Name" CMS placeholder on homepage</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
+          <tr><td class="tbl-num">3</td><td>Update robots.txt to allow GPTBot, PerplexityBot, ClaudeBot</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
+          <tr><td class="tbl-num">4</td><td>Add FAQPage JSON-LD schema to all city pages (server-side only)</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
+          <tr><td class="tbl-num">5</td><td>Add LocalBusiness + sameAs schema to homepage</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
+          <tr><td class="tbl-num">6</td><td>Create llms.txt + llms-full.txt at root domain</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
+          <tr><td class="tbl-num">7</td><td>Verify all city pages indexed in Google Search Console</td><td><span class="phase-tag tag-p1">Phase 1</span></td></tr>
+          <tr><td class="tbl-num">8</td><td>Audit every directory listing for NAP inconsistencies</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
+          <tr><td class="tbl-num">9</td><td>Standardize canonical NAP across all platforms</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
+          <tr><td class="tbl-num">10</td><td>Create missing profiles — LinkedIn, RESA, Houzz, Alignable, Reddit</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
+          <tr><td class="tbl-num">11</td><td>Rewrite meta descriptions for all city pages (intent-first)</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
+          <tr><td class="tbl-num">12</td><td>Add "Cities we serve" hub on homepage with internal links</td><td><span class="phase-tag tag-p2">Phase 2</span></td></tr>
+          <tr><td class="tbl-num">13</td><td>Write 4 original deep-insight articles (proprietary data only)</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
+          <tr><td class="tbl-num">14</td><td>Add 8 new FAQs per city page + update FAQPage schema</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
+          <tr><td class="tbl-num">15</td><td>Add E-E-A-T authority section to all city pages</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
+          <tr><td class="tbl-num">16</td><td>Add Article/BlogPosting schema to all blog posts</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
+          <tr><td class="tbl-num">17</td><td>Guest post outreach — Inman, agent blogs, RESA</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
+          <tr><td class="tbl-num">18</td><td>Update existing city page content with 2025 data (genuine recency)</td><td><span class="phase-tag tag-p3">Phase 3</span></td></tr>
+          <tr><td class="tbl-num">19</td><td>Add @id property + entity linking to all schema markup</td><td><span class="phase-tag tag-p4">Phase 4</span></td></tr>
+          <tr><td class="tbl-num">20</td><td>Add Review + AggregateRating schema from existing Yelp reviews</td><td><span class="phase-tag tag-p4">Phase 4</span></td></tr>
+          <tr><td class="tbl-num">21</td><td>Build internal content knowledge graph via cross-linking</td><td><span class="phase-tag tag-p4">Phase 4</span></td></tr>
+          <tr><td class="tbl-num">22</td><td>Publish 2–3 original articles on LinkedIn Pulse</td><td><span class="phase-tag tag-p4">Phase 4</span></td></tr>
+          <tr><td class="tbl-num">23</td><td>Build photo → Claude → Webflow CMS automation (Zapier)</td><td><span class="phase-tag tag-p5">Phase 5</span></td></tr>
+          <tr><td class="tbl-num">24</td><td>Build AEO monitoring dashboard + weekly citation checks</td><td><span class="phase-tag tag-p5">Phase 5</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="doc-footer">
+      <div class="footer-logo">boldRM</div>
+      <div class="footer-meta">AEO Optimization Roadmap &nbsp;·&nbsp; Reference: The AEO Blueprint (Aslam, Belcher &amp; Lopez, 2025) &nbsp;·&nbsp; June 2025</div>
+      <div class="footer-contact">info@boldrm.com &nbsp;·&nbsp; 650.988.5840 &nbsp;·&nbsp; boldrm.com</div>
+    </footer>
+
+  </main>
 </div>
+
+<script>
+// Highlight active nav item on scroll
+const sections = document.querySelectorAll('section[id], .summary-wrap[id]');
+const navLinks = document.querySelectorAll('.nav-item a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
 </body>
 </html>
